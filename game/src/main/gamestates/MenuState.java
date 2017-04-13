@@ -5,12 +5,13 @@ import java.awt.Font;
 import java.awt.event.KeyEvent;
 
 import main.Audio;
+import main.Game;
 import main.content.Background;
 import main.content.MenuOptions;
 
 public class MenuState extends GameState {
 	private Background bg = new Background("/Backgrounds/menu.png");
-	private Audio menuSong = new Audio("/Audio/menu.wav");
+	public Audio menuSong = new Audio("/Audio/menu.wav");
 	private Audio selectSound = new Audio("/Audio/select.wav");
 	private MenuOptions menu = new MenuOptions(new  String[] {" Join Game", "Start Server", "      Quit", "      Help"}, new int[]{});
 	
@@ -19,6 +20,7 @@ public class MenuState extends GameState {
 	private double titleScale = 75;
 	private boolean growing = true;
 	private boolean menuSongPlaying = false;
+
 	
 	
 	public MenuState(GameStateManager gsm) {
@@ -60,11 +62,15 @@ public class MenuState extends GameState {
 		g.drawString("Tankz", (int) (645-1.8*titleScale),250);
 	}
 	
+	public void stopAudio() {
+		menuSong.stop();
+	}
+	
 	public void select() {
 		selectSound.play();
 		switch (menu.currentChoice) {
 		case 0:
-			//gsm.setState(1);
+			gsm.setState(1);
 			break;
 		case 1:
 			gsm.setState(2);
@@ -95,7 +101,20 @@ public class MenuState extends GameState {
 		}
 	}
 	
-	public void keyReleased(int keyCode) {
-		
+	public void mouseMove(int x, int y) {
+		if (menu.mouseHover(x, y) == true) {
+			if (Game.cursor != 12) {
+				menu.changeSound.play();
+			}
+			Game.setCursor(12);
+		} else {
+			Game.setCursor(0);
+		}
+	}
+	
+	public void mouseClicked(int x, int y) {
+		if (menu.mouseHover(x, y) == true) {
+			select();
+		}
 	}
 }

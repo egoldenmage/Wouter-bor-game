@@ -3,7 +3,9 @@ package main;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -25,10 +27,20 @@ public class Game extends JPanel {
 	public static int cursor;
 	public static int WIDTH = 1280; //breedte van scherm/bufferedImage
 	public static int HEIGHT = 1024; //breedte van scherm/bufferedImage
+	public static boolean showFramerate = false;
+	
+	public static String serverUser;
+	public static String serverPass;
 	
 	
 	public static void main(String[] args) {
-		window.setLocation(0,0); //TODO bepaal waar scherm opent. Standaard 0,0 nu op 2e scherm.
+		window.setLocation(1920,56); //TODO bepaal waar scherm opent. Standaard 0,0 nu op 2e scherm.
+		//window.setLocation(0,0);
+		try {
+			window.setIconImage(ImageIO.read(Game.class.getResourceAsStream("/Icons/taskbar.png")));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		window.setUndecorated(true); 
 		window.setPreferredSize(new Dimension(WIDTH,HEIGHT));
 		window.setContentPane(gamePane);//zet de Jpanel als de contentpane (waarop alles wordt gedrawt)
@@ -41,8 +53,10 @@ public class Game extends JPanel {
 	}
 	
 	public static void setCursor(int cursorInt) {
-		window.setCursor(Cursor.getPredefinedCursor(cursorInt));
-		cursor = cursorInt;
+		if (cursorInt != cursor) {
+			window.setCursor(Cursor.getPredefinedCursor(cursorInt));
+			cursor = cursorInt;
+		}
 	}
 	
 	public static void start() {

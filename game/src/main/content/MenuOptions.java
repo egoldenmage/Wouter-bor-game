@@ -9,10 +9,9 @@ public class MenuOptions {
 	public String[] options = {};
 	private int[] disabledOptions;
 	
-	private Audio changeSound = new Audio("/Audio/change.wav");
+	public Audio changeSound = new Audio("/Audio/change.wav");
 	private Font menuFont = new Font("Calibri", Font.PLAIN, 38);
 	public boolean blinking = false;
-	
 	
 	public int currentChoice = 0;
 
@@ -20,6 +19,7 @@ public class MenuOptions {
 	public int height= 40;
 	public int xPos = 538;
 	public int yPos = 370;
+	public int ySpacing = 60;
 	
 	public MenuOptions(String[] optionsArray, int[] disabledOptionsArray) {
 		this.disabledOptions = new int[optionsArray.length];
@@ -36,14 +36,14 @@ public class MenuOptions {
 		for (int i = 0; i < options.length; i++) {
 			if (i == currentChoice) {
 				g.setColor(new Color(120,120,120,200));
-				g.fillRoundRect(xPos, (yPos + i * 60), width, height, 8, 8);
+				g.fillRoundRect(xPos, (yPos + i * ySpacing), width, height, 8, 8);
 				if (System.currentTimeMillis() % 400 <= 200 && blinking) {
 					g.setColor(new Color(250,250,250, 180));
 				} else {
 					g.setColor(new Color(40,40,40, 180));
 				}
 				int[] x = {xPos-20,xPos-40,xPos-40};
-				int[] y = {yPos+20+i*60,yPos+30+i*60,yPos +10+i*60};
+				int[] y = {yPos+20+i*ySpacing,yPos+30+i*ySpacing,yPos +10+i*ySpacing};
 				g.fillPolygon(x, y, 3);
 				g.setColor(new Color(70,70,70));
 			} else {
@@ -53,7 +53,7 @@ public class MenuOptions {
 						g.setColor(new Color(50,50,50,60));
 					}
 				}
-				g.fillRoundRect(xPos, (yPos + i * 60), width, height, 8, 8);
+				g.fillRoundRect(xPos, (yPos + i * ySpacing), width, height, 8, 8);
 				g.setColor(new Color(140,140,140));
 				for (int j = 0; j < disabledOptions.length; j++) {
 					if (disabledOptions[j] == i) {
@@ -61,13 +61,12 @@ public class MenuOptions {
 					}
 				}
 			}
-			g.drawString(options[i], xPos+10, (yPos+ 30 + i * 60));
+			g.drawString(options[i], xPos+10, (yPos+ 30 + i * ySpacing));
 		}
 	}
 	
 	public void setDisabled(int toDisable) {
 		disabledOptions[disabledOptions.length - 1] = toDisable;
-		//TODO kanniet toevoegen aan array
 	}
 	
 	public void setEnabled(int toEnable) {
@@ -91,6 +90,24 @@ public class MenuOptions {
 				}
 			}
 			
+	}
+	
+	public boolean mouseHover(int x, int y) {
+		for (int i = 0; (i < options.length); i++) {
+
+			if ((x >= xPos) && x <= xPos + width) {
+				if ((y >= (yPos + i*ySpacing)) && (y <= yPos + i*ySpacing + height)) {
+					for (int j = 0; j < disabledOptions.length; j++) {
+						if (disabledOptions[j] == i) {
+							return false;
+						}
+					}
+					currentChoice = i;
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 	
 	public void moveDown() {

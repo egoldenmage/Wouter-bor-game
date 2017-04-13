@@ -10,7 +10,6 @@ public class GameInput extends Game implements KeyListener {
 	
 	
 	public GameInput() {
-		System.out.println("GameInput gestart");
 		Game.gamePane.addMouseListener(new MouseAdapter() { public void mousePressed(MouseEvent e) {
 				GameStateManager.mouseClicked(e.getX(),e.getY());
 	        } 

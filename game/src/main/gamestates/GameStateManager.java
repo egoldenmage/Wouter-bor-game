@@ -8,8 +8,8 @@ public class GameStateManager {
 	
 	public static final int MENUSTATE = 0;
 	public static final int CLIENTMENUSTATE = 1;
-	public static final int CLIENTSTATE = 2;
-	public static final int SERVERSTATE = 3;
+	public static final int SERVERMENUSTATE = 2;
+	public static final int CLIENTSTATE = 3;
 	
 	private static int currentState;
 	
@@ -23,6 +23,9 @@ public class GameStateManager {
 	
 	public void setState(int state) {
 		currentState = state;
+		if (currentState == 3) {
+			gameStates.get(0).stopAudio();
+		}
 		gameStates.get(currentState).init();
 	}
 	
@@ -47,6 +50,7 @@ public class GameStateManager {
 			keysDown.remove(keysDown.indexOf(keyCode));
 		}
 	}
+
 	
 	public static void mouseMove(int x, int y) {
 		gameStates.get(currentState).mouseMove(x,y);

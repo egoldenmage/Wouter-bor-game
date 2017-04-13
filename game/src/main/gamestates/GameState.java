@@ -1,5 +1,6 @@
 package main.gamestates;
 
+
 public class GameState {
 	protected GameStateManager gsm;
 	
@@ -26,5 +27,8 @@ public class GameState {
 	
 	protected void mouseClicked(int x, int y) {
 		
+	}
+
+	protected void stopAudio() {
 	}
 }

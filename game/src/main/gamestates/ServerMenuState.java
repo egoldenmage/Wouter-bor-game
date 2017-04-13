@@ -3,9 +3,16 @@ package main.gamestates;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.KeyEvent;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.InetAddress;
+import java.net.Socket;
 
 import main.content.MenuOptions;
 import main.Audio;
+import main.Game;
 import main.content.Background;
 
 public class ServerMenuState extends GameState {
@@ -16,7 +23,8 @@ public class ServerMenuState extends GameState {
 		private Audio typingRightSound = new Audio("/Audio/select.wav");
 		private Audio typingWrongSound = new Audio("/Audio/typingWrongSound.wav");
 		private MenuOptions menu = new MenuOptions(new  String[] {"   Set Name:", "Set Password:", "  Start Server", "        Back"}, new int[]{2});
-		private Font serverInfoFont = new Font("Calibri", Font.ITALIC, 80);
+		private Font serverInfoFont = new Font("ARIAL", Font.PLAIN, 80);
+		private Font serverInfoFontSmall = new Font("ARIAL", Font.ITALIC, 40);
 		private Font serverInfoTypeFont = new Font("Calibri", Font.BOLD, 80);
 		
 		private double titleScale = 75;
@@ -38,7 +46,7 @@ public class ServerMenuState extends GameState {
 			menu.currentChoice = 0;
 		}
 		
-		private void select() {
+		private void select() throws IOException {
 			selectSound.play();
 			if (entering) {
 				menu.blinking = false;
@@ -57,7 +65,24 @@ public class ServerMenuState extends GameState {
 				enteringMode(2);
 				break;
 			case 2:
-				//gsm.setState(3);
+				Socket socket = new Socket(InetAddress.getByName("83.162.43.100"), 4444);		
+				BufferedReader serverIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));//Input van de server
+				PrintWriter serverOut = new PrintWriter(socket.getOutputStream(), true); //output naar server
+				serverOut.println("type:create|servername:" + serverName + "|serverpass:" + serverPass + "|"); //data van client > server
+				String data = serverIn.readLine();
+				if (data == null) {
+					break;
+				}
+				if (data.indexOf("sessioncreated") != -1) {
+					socket.close();
+					Game.serverUser = serverName;
+					Game.serverPass = serverPass;
+					gsm.setState(3);
+				} else if (data.indexOf("sessionexists") != -1) {
+					//TODO popup functie/class die text drawt voor x tijd (meegegeven). Deze worden heir automatisch via een arraylist onder elkaar gedrawd
+					System.out.println("Server bestaat al.");
+					socket.close();
+				}
 				break;
 			case 3:
 				back();
@@ -145,13 +170,24 @@ public class ServerMenuState extends GameState {
 				}
 				
 			} else {
-				//TODO ook strignsdrawen, maar op andre plek.
+				if (serverName != "") {
+					g.setFont(serverInfoFontSmall);
+					g.drawString(serverName, menu.xPos + menu.width + 30,menu.yPos + 30);
+				}
+				if (serverPass != "") {
+					g.setFont(serverInfoFontSmall);
+					g.drawString(serverPass, menu.xPos + menu.width + 30,menu.yPos +90);
+				}
 			}
 		}
 		
 		public void keyPressed(int keyCode) {
 			if (keyCode == KeyEvent.VK_ENTER) {
-				select();
+				try {
+					select();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			} else if (keyCode == KeyEvent.VK_ESCAPE) {
 				back();
 			} else if ((keyCode == KeyEvent.VK_W || keyCode == KeyEvent.VK_UP) && !entering) {
@@ -207,14 +243,26 @@ public class ServerMenuState extends GameState {
 				shiftPressed = false;
 			}
 		}
+
 		
-		public void mouseMove(int x,int y) {
-			//TODO clickable buttons (checken of op pos, welke pointer en welke currentCount) > halen uit array van menuoptions??
+		public void mouseMove(int x, int y) {
+			if (menu.mouseHover(x, y) == true) {
+				if (Game.cursor != 12) {
+					menu.changeSound.play();
+				}
+				Game.setCursor(12);
+			} else {
+				Game.setCursor(0);
+			}
 		}
-		
 		
 		public void mouseClicked(int x, int y) {
-			//TODO als muis > knop > select
+			if (menu.mouseHover(x, y) == true) {
+				try {
+					select();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
-
 }
