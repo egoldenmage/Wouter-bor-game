@@ -10,6 +10,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 import main.Game;
+import main.gamestates.ClientState;
 
 public class Connection extends Thread{
 	private static int port = 4444;
@@ -39,10 +40,7 @@ public class Connection extends Thread{
 					String data = serverIn.readLine();
 					if (data != null){
 						if (data.indexOf("serverdata") != -1) {
-							ArrayList<ArrayList> clientsin = getServerData(data);
-							for (int i = 0; i < clientsin.size(); i++) {
-								
-							}
+							ClientState.updateClient(getServerData(data));
 						} else {
 							System.out.println(data);
 						}

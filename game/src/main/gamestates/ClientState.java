@@ -1,11 +1,13 @@
 package main.gamestates;
 
+import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.ArrayList;
 
 import main.Audio;
 import main.Game;
@@ -14,6 +16,7 @@ import main.networking.Connection;
 public class ClientState extends GameState {
 	private Audio gameSong = new Audio("/Audio/game.wav");
 	private Connection connection;
+	private static ArrayList<ArrayList> clients = new ArrayList();
 	
 	private Socket socket;
 	private BufferedReader serverIn;
@@ -49,6 +52,11 @@ public class ClientState extends GameState {
 		}
 	}
 	
+	public static void updateClient(ArrayList a) {
+		//TODO ArrayList parsen tot variabelen, matchen met huidige clients, en client adden/updaten.
+		clients = a;
+	}
+	
 	public static String addToPayload(String var, String value) {
 		return var + ":" + value + "|";
 	}
@@ -58,6 +66,11 @@ public class ClientState extends GameState {
 	}
 	
 	public void draw(java.awt.Graphics2D g) {
+		for (ArrayList<String> a : clients) {
+			//System.out.println(Integer.parseInt(a.get(2)));
+			g.setColor(new Color(255,255,255));
+			g.drawRect(Integer.parseInt(a.get(2)), Integer.parseInt(a.get(3)), 30, 30);
+		}
 	}
 	
 	public void mouseMove(int x, int y) {
