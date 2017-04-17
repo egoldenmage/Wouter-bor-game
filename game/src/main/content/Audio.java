@@ -1,4 +1,4 @@
-package main;
+package main.content;
 
 import java.applet.Applet;
 import java.applet.AudioClip;

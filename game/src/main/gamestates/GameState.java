@@ -28,6 +28,10 @@ public class GameState {
 	protected void mouseClicked(int x, int y) {
 		
 	}
+	
+	protected void mouseDragged(int x, int y) {
+		
+	}
 
 	protected void stopAudio() {
 	}

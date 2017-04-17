@@ -5,8 +5,8 @@ import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 
-import main.Audio;
 import main.Game;
+import main.content.Audio;
 import main.content.Background;
 import main.content.MenuOptions;
 

@@ -11,8 +11,8 @@ import java.net.InetAddress;
 import java.net.Socket;
 
 import main.content.MenuOptions;
-import main.Audio;
 import main.Game;
+import main.content.Audio;
 import main.content.Background;
 
 public class ServerMenuState extends GameState {

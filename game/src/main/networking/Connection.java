@@ -13,12 +13,15 @@ import main.Game;
 import main.gamestates.ClientState;
 
 public class Connection extends Thread{
-	private static int port = 4444;
-	private static String ip = "83.162.43.100";
-	private int tickrate = 30;
+	private int port = 4444;
+	private String ip = "83.162.43.100";
+	private int tickrate = 60;
 	
-	public int x;
-	public int y;
+	public int mousex;
+	public int mousey;
+	private int xpos;
+	private int ypos;
+	private double rotation;
 	
 	public static String data;
 	public static String incoming;
@@ -36,7 +39,10 @@ public class Connection extends Thread{
 			PrintWriter serverOut = new PrintWriter(socket.getOutputStream(), true); //output naar server
 			while (true) {
 				if (System.currentTimeMillis() % ((int) (1000/tickrate)) == 0) {
-					serverOut.println("type:clientdata|" + addToPayload("machineip", InetAddress.getLocalHost().getHostAddress()) + addToPayload("servername", Game.serverUser) + addToPayload("playerposx", Integer.toString(x)) + addToPayload("playerposy", Integer.toString(y)));
+					xpos = (int) ClientState.xpos;
+					ypos = (int) ClientState.ypos;
+					rotation = ClientState.rotation;
+					serverOut.println("type:clientdata|" + addToPayload("machineip", InetAddress.getLocalHost().getHostAddress()) + addToPayload("servername", Game.serverUser) + addToPayload("playerposx", Integer.toString(xpos)) + addToPayload("playerposy", Integer.toString(ypos)) + addToPayload("rotation", Double.toString(rotation)));
 					String data = serverIn.readLine();
 					if (data != null){
 						if (data.indexOf("serverdata") != -1) {
@@ -63,9 +69,9 @@ public class Connection extends Thread{
 			String tmpdata = data;
 			ArrayList<String> values = new ArrayList<String>();
 			tmpdata = data.substring(data.indexOf("client:") + 7, data.indexOf("|", data.indexOf("client:")));
-			while (tmpdata.contains("-")) {
-				values.add((tmpdata.substring(0,tmpdata.indexOf("-"))));
-				tmpdata = tmpdata.substring(tmpdata.indexOf("-")+1);
+			while (tmpdata.contains("*")) {
+				values.add((tmpdata.substring(0,tmpdata.indexOf("*"))));
+				tmpdata = tmpdata.substring(tmpdata.indexOf("*")+1);
 			}
 			values.add(tmpdata);
 			clientsin.add(values);

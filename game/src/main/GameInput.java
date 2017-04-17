@@ -1,13 +1,14 @@
 package main;
 
 import java.awt.event.*;
-
+import java.util.ArrayList;
 
 import main.gamestates.GameStateManager;
 
 @SuppressWarnings("serial")
 public class GameInput extends Game implements KeyListener {
-	
+	public static ArrayList<Integer> keysDown = new ArrayList<>();
+
 	
 	public GameInput() {
 		Game.gamePane.addMouseListener(new MouseAdapter() { public void mousePressed(MouseEvent e) {
@@ -18,7 +19,9 @@ public class GameInput extends Game implements KeyListener {
 			public void mouseMoved(java.awt.event.MouseEvent evt) {
 				GameStateManager.mouseMove(evt.getX(), evt.getY());
 			}
-			
+			public void mouseDragged(java.awt.event.MouseEvent evt) {
+				GameStateManager.mouseMove(evt.getX(), evt.getY());
+			}
 		});
 	}
 

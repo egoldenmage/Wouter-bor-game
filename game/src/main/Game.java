@@ -19,6 +19,8 @@ public class Game extends JPanel {
 	private static GameInput input = new GameInput();
 	public static GameStateManager gsm = new GameStateManager();
 	private static JFrame window = new JFrame("Game");
+	private static BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
+	private static Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorImg, new Point(0, 0), "blank cursor");
 	
 	private static BufferedImage image;
 	private static Graphics2D g;
@@ -34,8 +36,8 @@ public class Game extends JPanel {
 	
 	
 	public static void main(String[] args) {
-		window.setLocation(1920,56); //TODO bepaal waar scherm opent. Standaard 0,0 nu op 2e scherm.
-		//window.setLocation(0,0);
+		//window.setLocation(1920,56); //TODO bepaal waar scherm opent. Standaard 0,0 nu op 2e scherm.
+		window.setLocation(0,0);
 		try {
 			window.setIconImage(ImageIO.read(Game.class.getResourceAsStream("/Icons/taskbar.png")));
 		} catch (IOException e) {
@@ -54,8 +56,12 @@ public class Game extends JPanel {
 	
 	public static void setCursor(int cursorInt) {
 		if (cursorInt != cursor) {
-			window.setCursor(Cursor.getPredefinedCursor(cursorInt));
 			cursor = cursorInt;
+			if (cursorInt != 20) {
+				window.setCursor(Cursor.getPredefinedCursor(cursorInt));
+			} else {
+				window.setCursor(blankCursor);
+			}
 		}
 	}
 	
@@ -69,8 +75,6 @@ public class Game extends JPanel {
 		gamePane.setFocusable(true);
 		gamePane.requestFocus();
 	}
-	
-	//TODO handle input/outputvan Server
 	
 	
 	public static void update() {

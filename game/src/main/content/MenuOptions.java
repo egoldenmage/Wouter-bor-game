@@ -3,8 +3,6 @@ package main.content;
 import java.awt.Color;
 import java.awt.Font;
 
-import main.Audio;
-
 public class MenuOptions {
 	public String[] options = {};
 	private int[] disabledOptions;

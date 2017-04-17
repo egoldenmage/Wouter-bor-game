@@ -7,9 +7,10 @@ public class GameThread extends Game implements Runnable {
 	public Thread thread; //maak een extra thread zodat we een loop continu kunnen laten runnen zonder dat de mane frame vastloopt
 	
 	private boolean running;
-	private long FPS = 120;
+	private long FPS = 144;
 	private long frameTime = 1000/FPS;
 	private long lastcheck;
+	public static double elapsed;
 	
 	
 	public GameThread() {
@@ -23,7 +24,6 @@ public class GameThread extends Game implements Runnable {
 
 	public void run() {
 		long start;
-		double elapsed;
 		long wait;
 		
 		while (running) {

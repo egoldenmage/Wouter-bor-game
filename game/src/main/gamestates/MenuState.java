@@ -4,8 +4,8 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.KeyEvent;
 
-import main.Audio;
 import main.Game;
+import main.content.Audio;
 import main.content.Background;
 import main.content.MenuOptions;
 

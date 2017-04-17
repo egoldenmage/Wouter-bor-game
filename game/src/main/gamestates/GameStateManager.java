@@ -49,6 +49,7 @@ public class GameStateManager {
 		} else if (!pressed && keysDown.contains(keyCode)) {
 			keysDown.remove(keysDown.indexOf(keyCode));
 		}
+		//System.out.println(keysDown);
 	}
 
 	
