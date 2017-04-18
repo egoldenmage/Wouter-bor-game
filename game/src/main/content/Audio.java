@@ -1,27 +1,52 @@
 package main.content;
 
-import java.applet.Applet;
-import java.applet.AudioClip;
+import java.io.IOException;
+
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
 
 public class Audio {
 	
-	private AudioClip clip;
+	private Clip clip;
+	private AudioInputStream inputStream;
+	private String src;
 	
 	public Audio(String src) {
-		try {
-			clip = Applet.newAudioClip(Audio.class.getResource(src));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		setClip(src);
 	}
 	
 	public void play() {
-		clip.play();
+		clip.stop();
+		try {
+			clip = AudioSystem.getClip();
+			inputStream = AudioSystem.getAudioInputStream(Audio.class.getResource(src));
+			clip.open(inputStream);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		clip.start();
 	}
+	
+	public void setClip(String s) {
+		try {
+			clip = AudioSystem.getClip();
+			inputStream = AudioSystem.getAudioInputStream(Audio.class.getResource(s));
+			clip.open(inputStream);
+		} catch (Exception e) {
+		}
+		this.src = s;
+	}
+	
 	public void loop() {
-		clip.loop();
+		clip.stop();
+		clip.setFramePosition(0);
+		clip.start();
 	}
 	public void stop() {
 		clip.stop();
 	}
 }
+
+///

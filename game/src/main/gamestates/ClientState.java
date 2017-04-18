@@ -1,6 +1,5 @@
 package main.gamestates;
 
-import java.awt.Color;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
@@ -20,19 +19,27 @@ import main.GameThread;
 import main.content.Audio;
 import main.content.Background;
 import main.networking.Connection;
+import main.content.weapons.*;
 
 public class ClientState extends GameState {
 	
 	private Audio gameSong = new Audio("/Audio/game.wav");
 	private static ArrayList<ArrayList> clients = new ArrayList();
-	private Background bg = new Background("/Backgrounds/gamebg.png");
+	private Background bg = new Background("/Backgrounds/gamebg.png", true);
+	private Background bgoverlay = new Background("/Backgrounds/bgoverlay.png", true);
 	private Audio fire1 = new Audio("/Audio/light-gunshot-1.wav");
+	private Weapon m9 = new Weapon();
+	private Weapon magnum = new Weapon();
+	private Weapon ar15 = new Weapon();
+	
+	private Weapon currentWeapon;
 	
 	AffineTransform transform = new AffineTransform();
 	AffineTransform oldAT;
 	
 	private static String localip;
 	private static String externalip;
+	private static boolean firing;
 	
 	private static int mousex;
 	private static int mousey;
@@ -56,13 +63,46 @@ public class ClientState extends GameState {
 	}
 	
 	public void init() {
+		//Wapen waardes aanpassen
+		
+		//M9
+		m9.maxCapacity = 16;
+		m9.currentCapacity = 16;
+		m9.damage = 0.5;
+		m9.fireDelay = 250;
+		m9.reloadDelay = 2000;
+		m9.magFed = true;
+		
+		//.44 Magnum
+		magnum.maxCapacity = 6;
+		magnum.currentCapacity = 6;
+		magnum.damage = 3;
+		magnum.fireDelay = 900;
+		magnum.reloadDelay = 5735;
+		magnum.magFed = false;
+		magnum.setFireSound("/Audio/fire2-1.wav");
+		magnum.setFireSound2("/Audio/fire2-2.wav");
+		magnum.setReloadSound("/Audio/load2.wav");
+		
+		//AR-15
+		ar15.maxCapacity = 31;
+		ar15.currentCapacity = 31;
+		ar15.damage = 1;
+		ar15.fireDelay = 200;
+		ar15.reloadDelay = 3000;
+		ar15.magFed = true;
+		//ar15.setFireSound("/Audio/fire2-1.wav");
+		ar15.setReloadSound("/Audio/load2.wav");
+		
+		currentWeapon = magnum;
+		
+		//Afbeeldingen inladen
 		try {
 			player = ImageIO.read(getClass().getResourceAsStream("/Sprites/player.png"));
 			image = ImageIO.read(getClass().getResourceAsStream("/Icons/crosshair.png"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		bg.scale = 3;
 		try {
 			Game.setCursor(20);
 			localip = getIp(true);
@@ -99,9 +139,13 @@ public class ClientState extends GameState {
 	}
 	
 	public void update() {
+		if (firing) {
+			currentWeapon.fire();
+		}
 		double finalspeed = 0;
 		double vertical = 0;
 		double horizontal = 0;
+		//Check welke toetsen worden ingedrukt en pas dan snelheid aan
 		if (gsm.keysDown.contains(87) ) {
 			vertical -= 1;
 		}
@@ -114,11 +158,13 @@ public class ClientState extends GameState {
 		if (gsm.keysDown.contains(65)) {
 			horizontal -= 1;
 		}
+		//Schuin exat even snel, dus dan de x en y componenten met 1/2Sqrt(2) vermenigvuldigen
 		if ((horizontal != 0) && (vertical != 0)) {
 			horizontal *= 0.70710678118;
 			vertical *= 0.70710678118;
 		}
 		
+		//Als shift dan sprint (hogere snelheid)
 		if (gsm.keysDown.contains(16)) {
 			finalspeed = speed * sprintMultiplier;;
 		} else {
@@ -127,20 +173,20 @@ public class ClientState extends GameState {
 		
 		if ((ypos + vertical * finalspeed * (GameThread.elapsed/10000000)) < 0) {
 			ypos = 0;
-		} else if ((ypos + vertical * finalspeed * (GameThread.elapsed/10000000)) > main.Game.HEIGHT) {
-			ypos = main.Game.HEIGHT;
+		} else if ((ypos + vertical * finalspeed * (GameThread.elapsed/10000000)) > 1970) {
+			ypos = 1970;
 		} else {
 			ypos += vertical * finalspeed * (GameThread.elapsed/10000000);
 		}
 		if ((xpos + horizontal * finalspeed * (GameThread.elapsed/10000000)) < 0) {
 			xpos = 0;
-		} else if ((xpos + horizontal * finalspeed * (GameThread.elapsed/10000000)) > main.Game.WIDTH) {
-			xpos = main.Game.WIDTH;
+		} else if ((xpos + horizontal * finalspeed * (GameThread.elapsed/10000000)) > 1950) {
+			xpos = 1950;
 		} else {
 			xpos += horizontal * finalspeed * (GameThread.elapsed/10000000);
 		}
-		
-		rotation = Math.atan2(xpos + 35 - mousex, ypos + 26.5 - mousey);
+		bg.update((int) xpos-640, (int) ypos-512);
+		bgoverlay.update((int) xpos-640, (int) ypos-512);
 	}
 	
 	public void draw(java.awt.Graphics2D g) {
@@ -148,31 +194,57 @@ public class ClientState extends GameState {
 		
 		//Achtergrond
 		bg.draw(g);
-		
-		//Deze player
+
 		oldAT = g.getTransform();
-	    g.translate(35 + xpos, 26.5 + ypos);
-	    g.rotate(-rotation-1.75);
+		
+		//Als "camera" bij rand komt, player laten bewegen ipv camera.
+		double drawposx = 640;
+		double drawposy = 512;
+		if (ypos <= 512) {
+			drawposy = ypos;
+		} else if (ypos >= 1504) {
+			drawposy = 512 + (ypos-1504);
+		}
+		if (xpos <= 640) {
+			drawposx = xpos;
+		} else if (xpos >= 1376) {
+			drawposx = 640 + (xpos-1376);
+		}
+		rotation = Math.atan2(drawposx + 35 - mousex, drawposy + 26.5 - mousey);
+		g.translate(35 + drawposx, 26.5 + drawposy);
+	    g.rotate(-rotation-1.6);
 	    g.translate(-35, -26.5);
 	    g.drawImage(player, 0, 0, null);
 	    g.setTransform(oldAT);
 		
 		//Andere players
 		for (ArrayList<String> a : clients) {
-			g.setColor(new Color(255,255,255));
 			try {
 				if ((!a.get(0).contains(externalip)) && (!a.get(1).contains(localip))) {
-				    g.translate(35 + Integer.parseInt(a.get(2)), 26.5 + Integer.parseInt(a.get(3)));
-				    g.rotate(Double.parseDouble(a.get(4))-1.75);
-				    System.out.println(Double.parseDouble(a.get(4)));
-				    g.translate(-35, -26.5);
-				    g.drawImage(player, 0, 0, null);
-				    g.setTransform(oldAT);
+					int clientx = 0;
+					int clienty = 0;
+					if ((Integer.parseInt(a.get(2)) >= xpos - 640) && (Integer.parseInt(a.get(2)) <= xpos + 640)) { 
+						if ((Integer.parseInt(a.get(3)) >= ypos - 512) && (Integer.parseInt(a.get(2)) <= ypos + 512)) {
+							//g.drawImage(player,Integer.parseInt(a.get(2)) - bg.x,Integer.parseInt(a.get(3)) - bg.y,null);
+						    g.translate(Integer.parseInt(a.get(2)) - bg.x,Integer.parseInt(a.get(3)) - bg.y);
+						    g.rotate(Double.parseDouble(a.get(4))-1.75);
+						    g.translate(-35, -26.5);
+						    g.drawImage(player, 0, 0, null);
+						    g.setTransform(oldAT);						    
+						}
+					}
+
 				}
 			} catch (NumberFormatException e) {
 				e.printStackTrace();
 			}
 		}
+		
+		//2e deeel achtergrond (waar ej achter kunt)
+		bgoverlay.draw(g);
+		
+		
+		//UI dingen
 		
 		//Crosshair
 		g.scale(0.2, 0.2);
@@ -199,11 +271,22 @@ public class ClientState extends GameState {
 		connection.mousey = y;
 	}
 	
-	public void mouseClicked(int x, int y) {
-		fire1.play();
+	public void mouseClicked(int x, int y, int btn) {
+		if (btn == 1) {
+			firing = true;
+		}
+	}
+	
+	public void mouseReleased(int x, int y, int btn) {
+		if (btn == 1) {
+			firing = false;
+		}
 	}
 	
 	public void keyPressed(int keyCode) {
+		if (keyCode == 82) {
+			currentWeapon.reload();
+		}
 		
 	}
 	

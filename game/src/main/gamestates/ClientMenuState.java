@@ -12,7 +12,7 @@ import main.content.MenuOptions;
 
 public class ClientMenuState extends GameState {
 	
-	private Background bg = new Background("/Backgrounds/menu.png");
+	private Background bg = new Background("/Backgrounds/menu.png", false);
 	private Font titleFont;
 	private Audio selectSound = new Audio("/Audio/select.wav");
 	private Audio typingRightSound = new Audio("/Audio/select.wav");
@@ -112,7 +112,7 @@ public class ClientMenuState extends GameState {
 		menu.draw(g);
 		g.setColor(new Color(20,20,20));
 		g.setFont(titleFont);
-		g.drawString("Tankz", (int) (645-1.8*titleScale),250);			
+		g.drawString("Gunfighters", (int) (525-1.8*titleScale),250);		
 		if (entering) {
 			g.setFont(serverInfoTypeFont);
 			if (enterState == 1) {
@@ -235,7 +235,7 @@ public class ClientMenuState extends GameState {
 		}
 	}
 	
-	public void mouseClicked(int x, int y) {
+	public void mouseClicked(int x, int y, int btn) {
 		if (menu.mouseHover(x, y) == true) {
 			try {
 				select();

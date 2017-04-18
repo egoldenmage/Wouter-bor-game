@@ -10,7 +10,7 @@ import main.content.Background;
 import main.content.MenuOptions;
 
 public class MenuState extends GameState {
-	private Background bg = new Background("/Backgrounds/menu.png");
+	private Background bg = new Background("/Backgrounds/menu.png", false);
 	public Audio menuSong = new Audio("/Audio/menu.wav");
 	private Audio selectSound = new Audio("/Audio/select.wav");
 	private MenuOptions menu = new MenuOptions(new  String[] {" Join Game", "Start Server", "      Quit", "      Help"}, new int[]{});
@@ -59,7 +59,7 @@ public class MenuState extends GameState {
 		menu.draw(g);
 		g.setColor(new Color(20,20,20));
 		g.setFont(titleFont);
-		g.drawString("Tankz", (int) (645-1.8*titleScale),250);
+		g.drawString("Gunfighters", (int) (525-1.8*titleScale),250);
 	}
 	
 	public void stopAudio() {
@@ -112,7 +112,7 @@ public class MenuState extends GameState {
 		}
 	}
 	
-	public void mouseClicked(int x, int y) {
+	public void mouseClicked(int x, int y, int btn) {
 		if (menu.mouseHover(x, y) == true) {
 			select();
 		}

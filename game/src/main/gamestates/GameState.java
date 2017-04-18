@@ -25,7 +25,11 @@ public class GameState {
 		
 	}
 	
-	protected void mouseClicked(int x, int y) {
+	protected void mouseClicked(int x, int y, int btn) {
+		
+	}
+	
+	protected void mouseReleased(int x, int y, int btn) {
 		
 	}
 	

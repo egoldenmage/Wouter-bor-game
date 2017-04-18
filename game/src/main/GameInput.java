@@ -12,8 +12,11 @@ public class GameInput extends Game implements KeyListener {
 	
 	public GameInput() {
 		Game.gamePane.addMouseListener(new MouseAdapter() { public void mousePressed(MouseEvent e) {
-				GameStateManager.mouseClicked(e.getX(),e.getY());
+				GameStateManager.mouseClicked(e.getX(),e.getY(), e.getButton());
 	        } 
+			public void mouseReleased(MouseEvent e) {
+				GameStateManager.mouseReleased(e.getX(),e.getY(), e.getButton());
+			}
 	    }); 
 		Game.gamePane.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
 			public void mouseMoved(java.awt.event.MouseEvent evt) {
