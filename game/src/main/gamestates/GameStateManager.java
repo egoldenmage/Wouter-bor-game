@@ -21,7 +21,7 @@ public class GameStateManager {
 		setState(MENUSTATE);
 	}
 	
-	public void setState(int state) {
+	public void setState(int state){
 		currentState = state;
 		if (currentState == 3) {
 			gameStates.get(0).stopAudio();
@@ -30,10 +30,16 @@ public class GameStateManager {
 	}
 	
 	public void update() {
+		if (!gameStates.get(currentState).init) {
+			gameStates.get(currentState).init();
+		}
 		gameStates.get(currentState).update();
 	}
 	
 	public void draw(java.awt.Graphics2D g) {
+		if (!gameStates.get(currentState).init) {
+			gameStates.get(currentState).init();
+		}
 		gameStates.get(currentState).draw(g);
 	}
 	
@@ -63,5 +69,9 @@ public class GameStateManager {
 	
 	public static void mouseReleased(int x, int y, int btn) {
 		gameStates.get(currentState).mouseReleased(x,y, btn);
+	}
+
+	public static void mouseScrolled(double preciseWheelRotation) {
+		gameStates.get(currentState).mouseScrolled(preciseWheelRotation);
 	}
 }

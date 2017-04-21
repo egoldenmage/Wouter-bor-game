@@ -18,6 +18,12 @@ import main.content.Background;
 public class ServerMenuState extends GameState {
 		
 		private Background bg = new Background("/Backgrounds/menu.png", false);
+		private Background bgo1 = new Background("/Backgrounds/bgob1.png", false);
+		private Background bgo2 = new Background("/Backgrounds/bgob2.png", false);
+		private Background bgo3 = new Background("/Backgrounds/bgob3.png", false);
+		private Background bgo4 = new Background("/Backgrounds/bgob4.png", false);
+		private Background bgo5 = new Background("/Backgrounds/bgob5.png", false);
+		
 		private Font titleFont;
 		private Audio selectSound = new Audio("/Audio/select.wav");
 		private Audio typingRightSound = new Audio("/Audio/select.wav");
@@ -31,6 +37,10 @@ public class ServerMenuState extends GameState {
 		private boolean growing = true;
 		private boolean entering = false;
 		private boolean shiftPressed = false;
+		private Background currentBgo;
+		private long bgoLastChangeTime;
+		private int bgoChangeTime = 400;
+		private int bgoInt;
 		
 		private String serverName = "";
 		private String serverPass = "";
@@ -43,6 +53,8 @@ public class ServerMenuState extends GameState {
 		}
 		
 		public void init() {
+			currentBgo = bgo1;
+			init = true;
 			menu.currentChoice = 0;
 		}
 		
@@ -109,6 +121,32 @@ public class ServerMenuState extends GameState {
 		
 		
 		public void update() {
+			if (System.currentTimeMillis() - bgoLastChangeTime >= bgoChangeTime) {
+				bgoLastChangeTime = System.currentTimeMillis();
+				switch (bgoInt) {
+				case 0: 
+					currentBgo = bgo1;
+					bgoInt = 1;
+					break;
+				case 1: 
+					currentBgo = bgo2;
+					bgoInt = 2;
+					break;
+				case 2: 
+					currentBgo = bgo3;
+					bgoInt = 3;
+					break;
+				case 3: 
+					currentBgo = bgo4;
+					bgoInt = 4;
+					break;
+				case 4: 
+					currentBgo = bgo5;
+					bgoInt = 0;
+					break;
+				}
+
+			}
 			if(growing) {
 				if(titleScale <= 85) {
 					titleScale += 0.1;
@@ -129,6 +167,7 @@ public class ServerMenuState extends GameState {
 		
 		public void draw(java.awt.Graphics2D g) {
 			bg.draw(g);
+			currentBgo.draw(g);
 			menu.draw(g);
 			g.setColor(new Color(20,20,20));
 			g.setFont(titleFont);

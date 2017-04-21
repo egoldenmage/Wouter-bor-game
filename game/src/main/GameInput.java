@@ -18,6 +18,11 @@ public class GameInput extends Game implements KeyListener {
 				GameStateManager.mouseReleased(e.getX(),e.getY(), e.getButton());
 			}
 	    }); 
+		Game.gamePane.addMouseWheelListener(new MouseWheelListener() {
+			public void mouseWheelMoved(MouseWheelEvent e) {
+				GameStateManager.mouseScrolled(e.getPreciseWheelRotation());
+			}
+		});
 		Game.gamePane.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
 			public void mouseMoved(java.awt.event.MouseEvent evt) {
 				GameStateManager.mouseMove(evt.getX(), evt.getY());
@@ -29,6 +34,7 @@ public class GameInput extends Game implements KeyListener {
 	}
 
     public void keyPressed(KeyEvent e) {
+    	//System.out.println(e.getKeyCode());
         GameStateManager.input(e.getKeyCode(), true);
     }
     public void keyReleased(KeyEvent e) {

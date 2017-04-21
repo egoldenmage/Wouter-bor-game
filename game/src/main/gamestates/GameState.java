@@ -3,8 +3,10 @@ package main.gamestates;
 
 public class GameState {
 	protected GameStateManager gsm;
+	protected boolean init;
 	
 	protected void init() {
+		init = true;
 	}
 	
 	protected void update() {
@@ -38,5 +40,8 @@ public class GameState {
 	}
 
 	protected void stopAudio() {
+	}
+
+	protected void mouseScrolled(double preciseWheelRotation) {
 	}
 }

@@ -17,6 +17,8 @@ public class Connection extends Thread{
 	private String ip = "83.162.43.100";
 	private int tickrate = 60;
 	
+	private static ArrayList<String> additionalData = new ArrayList<String>();
+	
 	public int mousex;
 	public int mousey;
 	private int xpos;
@@ -25,6 +27,7 @@ public class Connection extends Thread{
 	
 	public static String data;
 	public static String incoming;
+	public static Socket socket;
 	
 	
 	public Connection() throws UnknownHostException, IOException {
@@ -32,7 +35,6 @@ public class Connection extends Thread{
 	}
 	
 	public void run() {
-		Socket socket;
 		try {
 			socket = new Socket(InetAddress.getByName(ip), port);
 			BufferedReader serverIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));//Input van de server
@@ -42,11 +44,23 @@ public class Connection extends Thread{
 					xpos = (int) ClientState.xpos;
 					ypos = (int) ClientState.ypos;
 					rotation = ClientState.rotation;
-					serverOut.println("type:clientdata|" + addToPayload("machineip", InetAddress.getLocalHost().getHostAddress()) + addToPayload("servername", Game.serverUser) + addToPayload("playerposx", Integer.toString(xpos)) + addToPayload("playerposy", Integer.toString(ypos)) + addToPayload("rotation", Double.toString(rotation)));
+					String extraData = "";
+					for (String s : additionalData) {
+						extraData += s;
+					}
+					serverOut.println("type:clientdata|" + addToPayload("machineip", InetAddress.getLocalHost().getHostAddress()) + addToPayload("servername", Game.serverUser) + addToPayload("playerposx", Integer.toString(xpos)) + addToPayload("playerposy", Integer.toString(ypos)) + addToPayload("rotation", Double.toString(rotation)) + extraData);
+					additionalData.clear();
 					String data = serverIn.readLine();
 					if (data != null){
 						if (data.indexOf("serverdata") != -1) {
-							ClientState.updateClient(getServerData(data));
+							if (data.indexOf("shot") != -1) {
+								ClientState.shotFired(getServerVarData(data, "shot:").get(0));
+							}
+							if (data.indexOf("hit") != -1) {
+								ClientState.hit();
+							}
+							ClientState.connected = true;
+							ClientState.updateClient(getServerData(data, "client:"));
 						} else {
 							System.out.println(data);
 						}
@@ -63,21 +77,36 @@ public class Connection extends Thread{
 		return var + ":" + value + "|";
 	}
 	
-	private static ArrayList getServerData(String data) {
+	public static void addInstanceValue(String var, String value) {
+		additionalData.add(addToPayload(var,value));
+	}
+	
+	private static ArrayList getServerData(String data, String var) {
 		ArrayList<ArrayList> clientsin = new ArrayList<ArrayList>();
-		while (data.contains("client:")) {
+		while (data.contains(var)) {
 			String tmpdata = data;
 			ArrayList<String> values = new ArrayList<String>();
-			tmpdata = data.substring(data.indexOf("client:") + 7, data.indexOf("|", data.indexOf("client:")));
+			tmpdata = data.substring(data.indexOf(var) + 7, data.indexOf("|", data.indexOf(var)));
 			while (tmpdata.contains("*")) {
 				values.add((tmpdata.substring(0,tmpdata.indexOf("*"))));
 				tmpdata = tmpdata.substring(tmpdata.indexOf("*")+1);
 			}
 			values.add(tmpdata);
 			clientsin.add(values);
-			data = data.substring(data.indexOf("|", data.indexOf("client:")));
+			data = data.substring(data.indexOf("|", data.indexOf(var)));
 		}
 		return clientsin;
+	}
+	
+	private static ArrayList<String> getServerVarData(String data, String var) {
+		String tmpdata;
+		ArrayList<String> values = new ArrayList<String>();
+		tmpdata = data.substring(data.indexOf(var) + var.length(), data.indexOf("|", data.indexOf(var)));
+		while (tmpdata.contains("*")) {
+			values.add((tmpdata.substring(0,tmpdata.indexOf("*"))));
+			tmpdata = tmpdata.substring(tmpdata.indexOf("*")+1);
+		}
+		return values;
 	}
 
 }
